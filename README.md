@@ -28,33 +28,31 @@ flask db init
 
 4. tambah username password untuk login
 
+flask shell
+Jalankan Baris Kode: Anda harus menjalankan setiap baris kode yang Anda sediakan satu per satu di dalam sesi flask shell tersebut:
 
-flask shell 
 
 from apps import db
-from apps.authentication.models import Users, Role, hash_pass
-# 1. Cek apakah role Admin sudah ada
-admin_role = Role.query.filter_by(name='Admin').first()
-if not admin_role:
+from apps.authentication.models import Users, Role, hash_pass 
+admin_role = Role.query.filter_by(name='Admin').first() 
+if not admin_role: 
     admin_role = Role(name='Admin', description='Administrator role')
-    db.session.add(admin_role)
-    db.session.commit()
-    print("Role Admin dibuat.")
+    db.session.add(admin_role) 
+    db.session.commit() 
+    print("Role Admin dibuat.") 
 
-# 2. Membuat user baru
-username = "admin"
-email = "admin@example.com"
-password = "admin123"
-
+username = "admin" 
+email = "admin@example.com" 
+password = "admin123" 
 user = Users(username=username, email=email, password=password)
 db.session.add(user)
 db.session.commit()
 print("User berhasil dibuat.")
 
-# 3. Assign role Admin ke user
 user.roles.append(admin_role)
 db.session.commit()
 print("Role Admin berhasil ditambahkan ke user.")
+
 quit()
 
 
