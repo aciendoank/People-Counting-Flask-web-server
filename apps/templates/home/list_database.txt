@@ -1,0 +1,48 @@
+1. Tabel camera
+Tabel ini digunakan untuk menyimpan informasi tentang setiap kamera yang terdaftar dalam sistem.
+
+id (Integer, primary_key=True):
+Ini adalah kunci utama yang secara unik mengidentifikasi setiap kamera.
+
+rtsp_url (String(256), nullable=False):
+Menyimpan URL (alamat) RTSP dari kamera. Ini adalah tautan yang digunakan untuk mendapatkan streaming video dari kamera. Nilai ini tidak boleh kosong.
+
+is_ai_enabled (Boolean, default=False):
+Ini adalah kolom penting yang berfungsi sebagai sakelar. Nilai True menunjukkan bahwa fungsi AI (seperti deteksi objek) sedang aktif untuk kamera ini, sementara False berarti hanya streaming video biasa yang berjalan.
+
+counting_line (Text, nullable=True):
+Menyimpan koordinat garis hitung yang digambar oleh pengguna di antarmuka web. Koordinat ini disimpan sebagai string dalam format JSON ({"x1": ..., "y1": ..., "x2": ..., "y2": ...}). Kolom ini bisa kosong (nullable=True) jika tidak ada garis yang ditentukan.
+
+Relasi (ai_models):
+Ini bukan kolom fisik di database, melainkan hubungan yang didefinisikan oleh Flask-SQLAlchemy. Kolom ini menghubungkan tabel camera dengan tabel ai_model, memungkinkan setiap kamera memiliki satu atau lebih model AI yang terkait dengannya.
+
+2. Tabel ai_model
+Tabel ini digunakan untuk menyimpan informasi tentang file model AI yang diunggah dan digunakan untuk deteksi objek.
+
+id (Integer, primary_key=True):
+Kunci utama yang secara unik mengidentifikasi setiap model AI.
+
+filename (String(256), nullable=False):
+Menyimpan nama asli file model yang diunggah (misalnya, yolov8n.pt).
+
+file_path (String(512), nullable=False):
+Menyimpan jalur (path) absolut di server tempat file model disimpan. Ini digunakan oleh aplikasi untuk memuat model saat AI diaktifkan.
+
+cam_id (Integer, ForeignKey('camera.id'), nullable=False):
+Ini adalah kunci asing (foreign key) yang menghubungkan setiap model AI ke kamera tertentu di tabel camera. Setiap model AI harus terkait dengan satu kamera.
+
+Hubungan Antar Tabel
+Model AIModel memiliki hubungan many-to-one ke model Camera. Artinya, satu kamera bisa memiliki nol atau satu model AI yang terkait dengannya, sedangkan satu model AI hanya terkait dengan satu kamera.
+
+Hubungan ini didefinisikan oleh kolom cam_id di tabel ai_model, yang merujuk ke id di tabel camera.
+
+Data yang Disimpan
+Secara keseluruhan, database ini menyimpan data-data berikut:
+
+Informasi Kamera: URL stream dan status aktivasi AI untuk setiap kamera.
+
+Pengaturan AI: Lokasi file model AI yang digunakan untuk setiap kamera.
+
+Pengaturan Deteksi: Koordinat garis hitung yang spesifik untuk setiap kamera, memungkinkan fungsi penghitungan orang atau objek.
+
+Informasi File Model: Nama file dan lokasi penyimpanan model AI yang diunggah.

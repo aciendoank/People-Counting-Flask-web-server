@@ -1,0 +1,78 @@
+
+    <div class="sidebar">
+        <!--
+          Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red"
+      -->
+        <div class="sidebar-wrapper">
+            <div class="logo">
+                <a href="javascript:void(0)" class="simple-text logo-mini">
+                    LOOK 
+                </a>
+                <a href="javascript:void(0)" class="simple-text logo-normal">
+                    AROUND WITH AI
+                </a>
+            </div>
+            <ul class="nav">
+                <li class="{% if 'dashboard' in segment %} active {% endif %} ">
+                    <a href="/dashboard">
+                        <i class="tim-icons icon-chart-pie-36"></i>
+                        <p>Overview</p>
+                    </a>
+                </li>
+                <li class="{% if 'ai_view' in segment %} active {% endif %}">
+                    <a href="/ai_view">
+                        <i class="tim-icons icon-single-02"></i>
+                        <p>Ai Live View</p>
+                    </a>
+                </li>
+                <li class="{% if 'cam_settings' in segment %} active {% endif %}">
+                    <a href="/cam_settings">
+                        <i class="tim-icons icon-atom"></i>
+                        <p>Cam-Settings</p>
+                    </a>
+                </li>
+                <li class="{% if 'ai_settings' in segment %} active {% endif %}">
+                    <a href="/ai_settings">
+                        <i class="tim-icons icon-pin"></i>
+                        <p>Ai-Settings</p>
+                    </a>
+                </li>
+                <li class="{% if 'people_count' in segment %} active {% endif %}">
+                    <a href="/people_count">
+                        <i class="tim-icons icon-bell-55"></i>
+                        <p>People Count Settings</p>
+                    </a>
+                </li> 
+                <li class="{% if 'alarm-setting' in segment %} active {% endif %}">
+                    <a href="/alarm-setting">
+                        <i class="tim-icons icon-puzzle-10"></i>
+                        <p>Alarm Settings</p>
+                    </a>
+                </li>
+                <li class="{% if 'recording' in segment %} active {% endif %}">
+                    <a href="/recording">
+                        <i class="tim-icons icon-align-center"></i>
+                        <p>Recording</p>
+                    </a>
+                </li>
+                <li class="{% if 'recording' in segment %} active {% endif %}">
+                    <a href="/users">
+                        <i class="tim-icons icon-align-center"></i>
+                        <p>Users settings</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="/dev">
+                        <i class="tim-icons icon-world"></i>
+                        <p>Dev Tools</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('authentication_blueprint.logout') }}">
+                        <i class="tim-icons icon-button-power"></i>
+                        <p>Logout</p>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>

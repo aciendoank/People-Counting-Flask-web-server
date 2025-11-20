@@ -1,0 +1,73 @@
+<!-- apps/home/templates/home/people_count.html-->
+{% extends "layouts/base.html" %}
+
+{% block title %} Pengaturan Garis Hitung {% endblock %}
+
+{% block stylesheets %}
+<link href="{{ url_for('static', filename='assets/css/people_count.css') }}" rel="stylesheet">
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h4 class="card-title">Pengaturan Garis Hitung</h4>
+                        <p class="category">Gambar garis untuk menghitung orang yang lewat</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row justify-content-center">
+                            <div class="col-md-4 mb-4">
+                                <div class="card shadow-lg p-3 rounded">
+                                    <h4>Pengaturan Kamera</h4>
+                                    <div class="form-group mb-3">
+                                        <label for="cameraSelect">Pilih Kamera:</label>
+                                        <select class="form-control" id="cameraSelect">
+                                            <option value="">-- Pilih Kamera --</option>
+                                            {% for cam in cameras %}
+                                            <option value="{{ cam.id }}" data-line-coords='{{ cam.counting_line | tojson }}'>
+                                                {{ cam.rtsp_url }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>                                    
+                                    <h4 class="mt-4">Garis Hitung</h4>
+                                    <p class="text-muted">
+                                        Klik dan seret pada video untuk menggambar garis hitung.
+                                    </p>
+                                    <div class="btn-group w-100 mb-3" role="group">
+                                        <button type="button" class="btn btn-success" id="saveLineBtn" disabled>
+                                            <i class="fas fa-save"></i> Simpan Garis
+                                        </button>
+                                        <button type="button" class="btn btn-warning" id="clearLineBtn" disabled>
+                                            <i class="fas fa-eraser"></i> Hapus Garis
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card  p-3 mt-4 text-left rounded">
+                                    <h4>Status & Log</h4>
+                                    <pre id="statusLog"></pre>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="video-container">
+                                    <img id="videoFeed" class="img-fluid" src="https://placehold.co/1280x720/343a40/f8f9fa?text=Pilih%20kamera%20untuk%20menampilkan%20video" alt="Video AI Stream">
+                                    <canvas id="drawCanvas" class="canvas-overlay"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js"></script>
+<script src="{{ url_for('static', filename='assets/js/people_count.js') }}"></script>
+{% endblock javascripts %}

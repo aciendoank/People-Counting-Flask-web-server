@@ -1,0 +1,209 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Kelola Akun {% endblock %}
+
+{% block stylesheets %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<style>
+    .table-container {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-category">Manajemen Pengguna</h5>
+                    <h2 class="card-title">Daftar Akun Pengguna</h2>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+                    
+                    <button type="button" class="btn btn-primary btn-round mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="fas fa-plus"></i> Tambah Pengguna Baru
+                    </button>
+
+                    <div class="table-container">
+                        <table class="table tablesorter">
+                            <thead class="text-primary">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Peran</th>
+                                    <th class="text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>{{ user.id }}</td>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        {% for role in user.roles %}
+                                            <span class="badge badge-pill badge-primary">{{ role.name }}</span>
+                                        {% else %}
+                                            <span class="badge badge-pill badge-secondary">Tidak Ada Peran</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td class="text-right">
+                                        <button class="btn btn-warning btn-sm me-2 edit-btn" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editUserModal" 
+                                                data-id="{{ user.id }}" 
+                                                data-username="{{ user.username }}" 
+                                                data-email="{{ user.email }}"
+                                                data-roles="{{ user.roles|map(attribute='id')|join(',') }}" >
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <form action="{{ url_for('home_blueprint.delete_user', user_id=user.id) }}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?');">
+                                                <i class="fas fa-trash-alt"></i> Hapus
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Tidak ada pengguna yang terdaftar.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUserModalLabel">Tambah Pengguna Baru</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('home_blueprint.add_user') }}" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required style="color: black;>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required style="color: black;>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required style="color: black;>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Peran</label>
+                        <select class="form-select" id="role" name="role" required style="color: black;>
+                            <option value="">Pilih Peran</option>
+                            {% for role in roles %}
+                            <option value="{{ role.id }}">{{ role.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Edit Pengguna</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editUserForm" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="edit_username" name="username" required style="color: black;>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="edit_email" name="email" required style="color: black;>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_password" class="form-label">Kata Sandi Baru (kosongkan jika tidak diubah)</label>
+                        <input type="password" class="form-control" id="edit_password" name="password" style="color: black;>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_role" class="form-label">Peran</label>
+                        <select class="form-select" id="edit_role" name="role" required style="color: black;>
+                            <option value="">Pilih Peran</option>
+                            {% for role in roles %}
+                            <option value="{{ role.id }}">{{ role.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var editUserModal = document.getElementById('editUserModal');
+        editUserModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var userId = button.getAttribute('data-id');
+            var username = button.getAttribute('data-username');
+            var email = button.getAttribute('data-email');
+            var roles = button.getAttribute('data-roles').split(',');
+            
+            var modalTitle = editUserModal.querySelector('.modal-title');
+            var editUsernameInput = editUserModal.querySelector('#edit_username');
+            var editEmailInput = editUserModal.querySelector('#edit_email');
+            var editRoleSelect = editUserModal.querySelector('#edit_role');
+            var editForm = editUserModal.querySelector('#editUserForm');
+
+            modalTitle.textContent = 'Edit Pengguna: ' + username;
+            editUsernameInput.value = username;
+            editEmailInput.value = email;
+            editForm.action = '{{ url_for("home_blueprint.edit_user", user_id=0) }}'.replace('0', userId);
+
+            // Set the selected role in the dropdown
+            if (roles.length > 0) {
+                editRoleSelect.value = roles[0];
+            } else {
+                editRoleSelect.value = '';
+            }
+        });
+    });
+</script>
+{% endblock javascripts %}

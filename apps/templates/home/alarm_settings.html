@@ -1,0 +1,180 @@
+<!-- apps/home/templates/home/alarm_settings.html-->
+{% extends "layouts/base.html" %}
+
+{% block title %} Alarm Settings {% endblock %}
+
+{% block stylesheets %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/css/bootstrap3/bootstrap-switch.css">
+{% endblock %}
+
+{% block content %}
+
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="p-4 rounded">
+                <div class="card mb-4">
+                    <div class="card-header border-bottom-0">
+                        <h5 class="title"><i class="bi bi-hdd-fill me-2"></i>Pengaturan Penyimpanan Global</h5>
+                        <p class="category">Atur folder penyimpanan video dan tangkapan layar untuk semua kamera.</p>
+                    </div>
+                    <div class="card-body pt-0">
+                        <form action="{{ url_for('home_blueprint.set_storage') }}" method="post">
+                            <div class="form-group mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label for="video-folder-input" class="form-label mb-0">Folder untuk Video</label>
+                                    <input type="checkbox" name="save-videos" data-bootstrap-switch
+                                           {% if global_settings.save_videos %}checked{% endif %}>
+                                </div>
+                                <input type="text" class="form-control bg-secondary text-dark" id="video-folder-input" name="video-folder" 
+                                       value="{{ global_settings.video_folder or '' }}" 
+                                       placeholder="Masukkan path folder, e.g., C:\videos">
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label for="screenshot-folder-input" class="form-label mb-0">Folder untuk Tangkapan Layar</label>
+                                    <input type="checkbox" name="save-screenshots" data-bootstrap-switch
+                                           {% if global_settings.save_screenshots %}checked{% endif %}>
+                                </div>
+                                <input type="text" class="form-control bg-secondary text-dark" id="screenshot-folder-input" name="screenshot-folder" 
+                                       value="{{ global_settings.screenshot_folder or '' }}" placeholder="Masukkan path folder, e.g., C:\screenshots">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary mt-3 w-100">Simpan Pengaturan Penyimpanan</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="title">Kamera dengan Pengaturan Alarm</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if cameras %}
+                            <ul class="list-group list-group-flush">
+                                {% for cam in cameras %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center bg-dark text-light py-3">
+                                        <div>
+                                            <strong>{{ cam.name or "No Name" }}</strong> - {{ cam.location or "No Location" }}<br>
+                                            <small class="text-white-50">
+                                                Trigger: <strong>{{ cam.alarm_trigger or "Tidak Diatur" }}</strong><br>
+                                                Aksi: <strong>{{ cam.alarm_action or "Tidak Diatur" }}</strong>
+                                            </small>
+                                        </div>
+                                        <div>
+                                            <button type="button" class="btn btn-warning btn-sm me-2" data-bs-toggle="modal"
+                                                    data-bs-target="#editAlarmModal{{ cam.id }}" title="Edit Alarm">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+                                            <form action="{{ url_for('home_blueprint.delete_alarm', cam_id=cam.id) }}" method="post" style="display:inline">
+                                                <button type="submit" class="btn btn-danger btn-sm" title="Hapus Alarm">
+                                                    <i class="bi bi-trash-fill"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </li>
+
+                                    <div class="modal fade" id="editAlarmModal{{ cam.id }}" tabindex="-1" aria-labelledby="editAlarmModalLabel{{ cam.id }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content bg-dark text-light">
+                                                <div class="modal-header border-bottom-0">
+                                                    <h5 class="modal-title" id="editAlarmModalLabel{{ cam.id }}">Edit Alarm untuk Kamera: {{ cam.name }}</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <form class="edit-alarm-form" method="POST" action="{{ url_for('home_blueprint.edit_alarm', cam_id=cam.id) }}">
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label for="alarm-trigger-{{ cam.id }}" class="form-label">Objek Pemicu Alarm</label>
+                                                            <input type="text" class="form-control bg-secondary text-light" id="alarm-trigger-{{ cam.id }}" name="alarm-trigger" value="{{ cam.alarm_trigger or '' }}">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="alarm-action-{{ cam.id }}" class="form-label">Aksi Alarm (JSON)</label>
+                                                            <textarea class="form-control bg-secondary text-light" id="alarm-action-{{ cam.id }}" name="alarm-action" rows="4">{{ cam.alarm_action or '' }}</textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-top-0">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                        <button type="submit" class="btn btn-primary">Perbarui</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <div class="alert alert-info text-center" role="alert">
+                                Belum ada kamera yang diatur alarmnya.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.js"></script>
+<script>
+    $(document).ready(function() {
+        // Inisialisasi Bootstrap Switch
+        $('[data-bootstrap-switch]').bootstrapSwitch();
+
+        // Tangani pengiriman form edit alarm menggunakan AJAX
+        $('.edit-alarm-form').on('submit', function(e) {
+            // Mencegah pengiriman form default
+            e.preventDefault();
+
+            var form = $(this);
+            var url = form.attr('action');
+            var formData = form.serialize();
+
+            // Tampilkan loading state pada tombol
+            var submitBtn = form.find('button[type="submit"]');
+            submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memperbarui...');
+
+            // Kirim data menggunakan AJAX
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: formData,
+                success: function(response) {
+                    // Tutup modal
+                    var modalId = form.closest('.modal').attr('id');
+                    var modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+                    modal.hide();
+
+                    // Perbarui tombol kembali normal dan muat ulang halaman untuk melihat perubahan
+                    submitBtn.prop('disabled', false).html('Perbarui');
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    var errorMessage = 'Gagal memperbarui pengaturan alarm. Silakan coba lagi.';
+                    // Coba ambil pesan error yang lebih spesifik dari respons backend
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response && response.message) {
+                            errorMessage = response.message;
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse error response:', e);
+                    }
+                    
+                    alert(errorMessage);
+                    console.error("Error updating alarm settings:", error);
+                    // Kembalikan tombol ke keadaan semula
+                    submitBtn.prop('disabled', false).html('Perbarui');
+                }
+            });
+        });
+    });
+</script>
+{% endblock javascripts %}

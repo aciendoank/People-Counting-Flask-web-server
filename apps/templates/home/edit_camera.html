@@ -1,0 +1,24 @@
+{% extends "layouts/base.html" %}
+{% block title %}Edit Camera{% endblock %}
+
+{% block content %}
+<div class="content">
+  <h3>Edit Camera</h3>
+  <form method="POST" action="{{ url_for('home_blueprint.edit_camera', cam_id=cam.id) }}">
+    <div class="form-group">
+      <label for="camera-name">Name</label>
+      <input type="text" class="form-control" id="camera-name" name="camera-name" value="{{ cam.name or '' }}">
+    </div>
+    <div class="form-group">
+      <label for="camera-location">Location</label>
+      <input type="text" class="form-control" id="camera-location" name="camera-location" value="{{ cam.location or '' }}">
+    </div>
+    <div class="form-group">
+      <label for="rtsp-ip">RTSP URL</label>
+      <input type="text" class="form-control" id="rtsp-ip" name="rtsp-ip" value="{{ cam.rtsp_url }}" required>
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Update</button>
+    <a href="{{ url_for('home_blueprint.cam_settings') }}" class="btn btn-secondary mt-2">Cancel</a>
+  </form>
+</div>
+{% endblock %}

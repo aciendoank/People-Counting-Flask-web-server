@@ -1,0 +1,110 @@
+<!-- apps/home/templates/home/dashboard.html-->
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %}
+
+{% block stylesheets %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
+{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="content">
+    <!-- Kontainer utama untuk log, menggunakan Flexbox untuk penempatan berdampingan -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-chart">
+                <div class="card-header ">
+                    <div class="row">
+                        <div class="col-sm-6 text-left">
+                            <h5 class="card-category">Overview</h5>
+                            <h2 class="card-title">Log Sistem</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Flexbox container untuk menempatkan log alarm dan counting berdampingan -->
+                    <div class="d-flex flex-column flex-md-row justify-content-between">
+                        <!-- Log Alarm -->
+                        <div class="mb-4 mb-md-0 flex-grow-1 mr-md-2">
+                            <h4 class="card-title">Log Alarm</h4>
+                            <div id="alarm-log" class="log-container border p-3 rounded-md overflow-y-scroll" style="height: 200px;">
+                                <p class="text-gray-500">Memuat log alarm...</p>
+                            </div>
+                        </div>
+
+                        <!-- Log People Counting -->
+                        <div class="flex-grow-1 ml-md-2">
+                            <h4 class="card-title">Log People Counting</h4>
+                            <div id="counting-log" class="log-container border p-3 rounded-md overflow-y-scroll" style="height: 200px;">
+                                <p class="text-gray-500">Memuat log hitungan...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kontainer untuk grafik hitungan harian -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-chart">
+                <div class="card-header ">
+                    <div class="row">
+                        <div class="col-sm-6 text-left">
+                            <h5 class="card-category">People Counting</h5>
+                            <h2 class="card-title">Grafik Hitungan Harian</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="peopleCountingChart"></canvas>
+                    </div>
+                    <!-- Tambahkan kembali elemen ini di sini agar skrip dapat menemukannya -->
+                    <div id="camera-labels" class="text-center mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Kontainer untuk detail kamera yang sekarang berada di bawah grafik -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-category">Info Kamera</h5>
+                    <h2 class="card-title">Detail Kamera</h2>
+                </div>
+                <div class="card-body" id="camera-info-list">
+                    {% for cam in cameras %}
+                    <div class="camera-info-item">
+                        <h6><i class="tim-icons icon-video-66 text-primary"></i> {{ cam.name }}</h6>
+                        <p class="text-muted"><i class="tim-icons icon-square-pin text-info"></i> Lokasi: {{ cam.location }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    let cameras = [
+        {% for cam in cameras %}
+        { id: {{ cam.id }},
+          name: "{{ cam.name | default('Kamera Tanpa Nama', true) }}",
+          location: "{{ cam.location | default('Lokasi Tidak Diketahui', true) }}",
+          is_ai_enabled: {{ 'true' if cam.is_ai_enabled else 'false' }} },
+        {% endfor %}
+    ];
+</script>
+<script src="{{ url_for('static', filename='assets/js/dashboard.js') }}"></script>
+{% endblock javascripts %}

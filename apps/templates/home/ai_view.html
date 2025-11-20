@@ -1,0 +1,53 @@
+<!-- apps/home/templates/home/ai_view.html-->
+{% extends "layouts/base.html" %}
+
+{% block title %} AI Live View {% endblock %}
+
+<!-- Specific Page CSS goes HERE -->
+{% block stylesheets %}
+<link href="{{ url_for('static', filename='assets/css/ai_live_view.css') }}" rel="stylesheet">
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="title">AI Live View</h5>
+                    <p class="description">Menampilkan deteksi objek real-time untuk semua kamera yang terdaftar.</p>
+                    <div class="d-flex align-items-center">
+                        <span class="mr-2">Tata Letak:</span>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-grid="1">1x1</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary active" data-grid="4">2x2</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-grid="9">3x3</button>
+                    </div>
+                </div>
+                <div class="card-body all-icons">
+                    <div class="row" id="ai-live-container">
+                        <!-- Live views will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    // Menyimpan data kamera dari Jinja ke variabel global JavaScript
+    let cameras = [
+        {% for cam in cameras %}
+        { id: {{ cam.id }},
+          name: "{{ cam.name or '-' }}",
+          location: "{{ cam.location or '-' }}", 
+          is_ai_enabled: {{ 'true' if cam.is_ai_enabled else 'false' }} },
+        {% endfor %}
+    ];
+</script>
+<script>const isAdmin = {{ is_admin | tojson }};</script>
+<script src="{{ url_for('static', filename='assets/js/ai_live_view.js') }}"></script>
+{% endblock javascripts %}

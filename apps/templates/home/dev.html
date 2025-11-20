@@ -1,0 +1,133 @@
+{% extends "layouts/base.html" %}
+{% block title %}IP Camera & AI Configuration{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="title">Upload Video for AI Processing</h5>
+                    <p class="category">Upload a video file to be processed by the AI live viewer.</p>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('home_blueprint.upload_video') }}" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="video_file">Video File (MP4, AVI, etc.)</label>
+                            <input type="file" class="form-control" id="video_file" name="video_file" accept="video/*" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Upload Video</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="title">Saved Videos</h5>
+                </div>
+                <div class="card-body">
+                    {% if cameras %}
+                        <ul class="list-group list-group-flush">
+                            {% for cam in cameras %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center bg-dark text-light">
+                                    <div>
+                                        <strong>Video ID: {{ cam.id }}</strong>
+                                        <span class="badge bg-success">Local Video</span>
+                                    </div>
+                                    <div>
+                                        <form action="{{ url_for('home_blueprint.delete_video', cam_id=cam.id) }}" method="post" style="display:inline">
+                                            <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                        </form>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-light">No videos saved yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="title">Database & System Settings</h5>
+                    <p class="category">Manage your application's data and reset options.</p>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <form action="{{ url_for('home_blueprint.clear_people_count_log') }}" method="post" onsubmit="return confirm('Apakah Anda yakin ingin menghapus semua log People Counting?');">
+                                <button type="submit" class="btn btn-warning btn-block">Hapus Log People Counting</button>
+                            </form>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <form action="{{ url_for('home_blueprint.clear_alarm_log') }}" method="post" onsubmit="return confirm('Apakah Anda yakin ingin menghapus semua log Alarm?');">
+                                <button type="submit" class="btn btn-warning btn-block">Hapus Log Alarm</button>
+                            </form>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <form action="{{ url_for('home_blueprint.factory_default') }}" method="post" onsubmit="return confirm('PERINGATAN: Ini akan menghapus semua database, KECUALI akun admin. Lanjutkan?');">
+                                <button type="submit" class="btn btn-danger btn-block" id="factory-default-btn">Factory Default</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        var socket = io();
+
+        socket.on('ai_frame', function(data) {
+            var imageElement = document.getElementById('live-stream-image');
+            if (imageElement) {
+                imageElement.src = 'data:image/jpeg;base64,' + data.frame;
+            }
+        });
+
+        socket.on('ai_status', function(data) {
+            var statusElement = document.getElementById('live-stream-status');
+            if (statusElement) {
+                statusElement.textContent = data.message;
+                if (data.type === 'error') {
+                    statusElement.classList.remove('text-light', 'text-warning', 'text-info');
+                    statusElement.classList.add('text-danger');
+                } else if (data.type === 'warning') {
+                    statusElement.classList.remove('text-light', 'text-danger', 'text-info');
+                    statusElement.classList.add('text-warning');
+                } else {
+                    statusElement.classList.remove('text-danger', 'text-warning');
+                    statusElement.classList.add('text-light');
+                }
+            }
+        });
+
+        socket.on('ai_count_update', function(data) {
+            var inCount = document.getElementById('in-count');
+            var outCount = document.getElementById('out-count');
+            if (inCount) inCount.textContent = data.counts.in;
+            if (outCount) outCount.textContent = data.counts.out;
+        });
+        
+        // Menambahkan konfirmasi khusus untuk Factory Default
+        document.getElementById('factory-default-btn').addEventListener('click', function(e) {
+            e.preventDefault(); // Mencegah form submit secara default
+            const confirmation = prompt('PERINGATAN: Ini akan menghapus semua database, KECUALI akun admin. Untuk melanjutkan, ketik "FACTORYDEFAULT" di bawah ini:');
+            if (confirmation === 'FACTORYDEFAULT') {
+                e.target.closest('form').submit();
+            } else {
+                alert('Konfirmasi gagal. Tindakan dibatalkan.');
+            }
+        });
+    });
+</script>
+{% endblock javascripts %}
