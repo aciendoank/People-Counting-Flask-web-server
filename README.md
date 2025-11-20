@@ -28,11 +28,11 @@ flask db init
 
 4. tambah username password untuk login
 
+
 flask shell 
 
 from apps import db
 from apps.authentication.models import Users, Role, hash_pass
-
 # 1. Cek apakah role Admin sudah ada
 admin_role = Role.query.filter_by(name='Admin').first()
 if not admin_role:
@@ -55,6 +55,9 @@ print("User berhasil dibuat.")
 user.roles.append(admin_role)
 db.session.commit()
 print("Role Admin berhasil ditambahkan ke user.")
+quit()
+
+
 
 
 5. jalankan aplikasi
@@ -63,4 +66,4 @@ python run.py
 6.buka browser
 localhost:5001
    
-quit()
+
