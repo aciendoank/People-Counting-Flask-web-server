@@ -1,7 +1,3 @@
-# -*- encoding: utf-8 -*-
-"""
-Copyright (c) 2019 - present AppSeed.us
-"""
 
 import os
 
@@ -16,7 +12,7 @@ class Config(object):
     # Default database: SQLite
         # Default database: SQLite
     DB_USER = os.environ.get('DB_USER', 'ai_admin')
-    DB_PASSWORD = os.environ.get('DB_PASSWORD', 'S#perS3crEt_007')
+    DB_PASSWORD = os.environ.get('DB_PASSWORD', 'S#perS3crEt')
     DB_HOST = os.environ.get('DB_HOST', 'localhost')
     DB_NAME = os.environ.get('DB_NAME', 'ai_watch_db')
 
@@ -45,7 +41,7 @@ class ProductionConfig(Config):
     REMEMBER_COOKIE_DURATION = 3600
 
     DB_USER = os.environ.get('DB_USER', 'ai_admin')
-    DB_PASSWORD = os.environ.get('DB_PASSWORD', 'Kulonuwun1!')
+    DB_PASSWORD = os.environ.get('DB_PASSWORD', 'S#perS3crEt')
     DB_HOST = os.environ.get('DB_HOST', 'localhost')
     DB_NAME = os.environ.get('DB_NAME', 'ai_watch_db')
     # Gunakan SQLite juga di production
